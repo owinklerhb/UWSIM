@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<meta-data>
+  <cram-semrec-version>0.4</cram-semrec-version>
+  <creator>IAI</creator>
+  <experiment>Screwing, Unscrewing and Pipetting</experiment>
+  <experiment-name>exp-2015-05-16_20-03-21</experiment-name>
+  <owl-exporter-version>0.93</owl-exporter-version>
+  <robot>PR2</robot>
+  <time-end>1431800787.185</time-end>
+  <time-start>1431799434.110</time-start>
+</meta-data>

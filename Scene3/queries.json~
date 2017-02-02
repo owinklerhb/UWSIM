@@ -1,0 +1,119 @@
+{
+    "query": [
+        {
+            "q": "",
+            "text": "----- Pipetting demo -----"
+        },
+        {
+            "q": "register_ros_package(knowrob_chemlab),\n% Robot knowledge\nowl_parse('package://knowrob_srdl/owl/PR2.owl'),\nshow('http://knowrob.org/kb/PR2.owl#PR2Robot1', 1431799434.11),\n% Episodic memory\nload_experiments('/episodes/Chemical-Laboratory/pr2-chemlab_0/', 'log.owl'),\n% Environment knowledge\nowl_parse('package://knowrob_chemlab/owl/chemlab-map_review-2015.owl'),\nshow('http://knowrob.org/kb/chemlab-map_review-2015.owl#Map_SAsdfs', 1431799434.11).",
+            "text": "Load knowledge sources and show semantic map "
+        },
+        {
+            "q": "",
+            "text": ""
+        },
+        {
+            "q": "",
+            "text": "----- Static environment knowledge -----"
+        },
+        {
+            "q": "entity(Obj, [an, object, [type, electrical_device]]),\nhighlight(Obj).",
+            "text": "Which objects are electrical devices?"
+        },
+        {
+            "q": "entity(Obj, [an, object, [type, container]]),\nhighlight(Obj).",
+            "text": "Which objects are containers?"
+        },
+        {
+            "q": "",
+            "text": ""
+        },
+        {
+            "q": "",
+            "text": "----- Queries on the logged belief state -----"
+        },
+        {
+            "q": "% Query action goals\nfindall(_Goal, task_goal(_Action, _Goal), _G),\nsort(_G, _Goals),\n% Count action goals\nfindall(_Goal-_Count, (\n  member(_Goal, _Goals),\n  findall(_Action, task_goal(_Action, _Goal), _Actions),\n  length(_Actions, _Count)\n), Distrib),\n% Show the distribution in the diagram canvas\npairs_keys_values(Distrib, _Types, _Counts),\nadd_diagram(diagram, 'Action Count', 'barchart', '', '',\n    350, 350, '12px', [[_Types,_Counts]]).",
+            "text": "What were the action goals?"
+        },
+        {
+            "q": "% Query action goals\nfindall(_Goal, task_goal(_Action, _Goal), _G),\nsort(_G, _Goals),\n% Compute action durations\nfindall(_Goal-_DurSum, (\n  member(_Goal, _Goals),\n  findall(_Duration, (\n    task_goal(_Action, _Goal),\n    task_duration(_Action, _Duration)\n  ), _Durations),\n  sumlist(_Durations, _DurSum)\n), _Distrib),\n% Show the distribution in the diagram canvas\npairs_keys_values(_Distrib, _Types, _Dur),\nadd_diagram(diagram, 'Action Duration', 'barchart', '', '',\n    350, 350, '12px', [[_Types,_Dur]]).",
+            "text": "What was the total duration of actions?"
+        },
+        {
+            "q": "% Query action goals\nfindall(_Goal, task_goal(_Action, _Goal), _G),\nsort(_G, _Goals),\n% Compute average action durations\nfindall(_Goal-_DurAvg, (\n  member(_Goal, _Goals),\n  findall(_Duration, (\n    task_goal(_Action, _Goal),\n    task_duration(_Action, _Duration)\n  ), _Durations),\n  sumlist(_Durations, _DurSum),\n  length(_Durations, _Count), \n  _DurAvg is _DurSum / _Count\n), _Distrib),\n% Show the distribution in the diagram canvas\npairs_keys_values(_Distrib, _Types, _Dur),\nadd_diagram(diagram, 'Action Duration Average', 'barchart', '', '',\n     350, 350, '12px', [[_Types,_Dur]]).",
+            "text": "What was the average duration of actions?"
+        },
+        {
+            "q": "% Bind an episode\nexperiment(E),\nfindall(_Y-(_T0-_T1), (\n  % Bind an action\n  rdfs_instance_of(_X, knowrob:'CRAMAction'),\n  task_goal(_X,_Y),\n  once((\n    % Holds for actions which are subtask of the bound episode\n    subtask_all(E,_X),\n    occurs(_X,[_T0,_T1])\n  ))\n), _Actions),\npairs_keys_values(_Actions, ClassNames, _Times),\npairs_keys_values(_Times, StartTimes, EndTimes),\nadd_timeline('actions', 'Logged Actions', ClassNames, StartTimes, EndTimes).",
+            "text": "Which actions were performed and when were they performed?"
+        },
+        {
+            "q": "entity(Act, [an, action, [task_context, 'GOAL-UNSCREWED']]),\noccurs(Act, [Begin,_]),\nshow([\n  [chemlab_map_2015:'Map_SAsdfs', Begin],\n  [pr2:'PR2Robot1', Begin]]),\n% Query objects which were unscrewed\ntask_screwing_objects(Act, Cap, Container),\nhighlight(Cap, '00FF00'),\nhighlight(Container, 'FF0000').",
+            "text": "Which were the objects unscrewing was performed on?"
+        },
+        {
+            "q": "entity(Act, [an, action, [task_context, 'GOAL-SCREWED']]),\noccurs(Act, [Begin,_]),\nshow([\n  [chemlab_map_2015:'Map_SAsdfs', Begin],\n  [pr2:'PR2Robot1', Begin]]),\n% Query objects which were unscrewed\ntask_screwing_objects(Act, Cap, Container),\nhighlight(Cap, '00FF00'),\nhighlight(Container, 'FF0000').",
+            "text": "Which were the objects screwing was performed on?"
+        },
+        {
+            "q": "entity(Act, [an, action,\n  [task_context, 'GOAL-LOADED-PIPETTE-TIP'],\n  [object_acted_on, Obj]\n]),\noccurs(Act, [Begin,_]),\nshow([\n  [chemlab_map_2015:'Map_SAsdfs', Begin],\n  [pr2:'PR2Robot1', Begin]]),\nhighlight(Obj).",
+            "text": "Which was the tool you used for pipetting action?"
+        },
+        {
+            "q": "entity(Act, [an, action,\n  [task_context, 'GRASP'],\n  [object_acted_on, [an, object, [type, bottle]]]\n]),\noccurs(Act, [Begin,End]),\nshow([\n  [chemlab_map_2015:'Map_SAsdfs', Begin],\n  [pr2:'PR2Robot1', Begin],\n  [trajectory('/r_gripper_tool_frame'), occurs(Begin, End, dt(0.25))]\n]).",
+            "text": "What was the right gripper trajectory during bottle grasp actions?"
+        },
+        {
+            "q": "entity(Act, [an, action,\n  [task_context, 'GRASP'],\n  [object_acted_on, [an, object, [type, chemobjects:tube]]]\n]),\noccurs(Act, [Begin,End]),\nshow([\n  [chemlab_map_2015:'Map_SAsdfs', Begin],\n  [pr2:'PR2Robot1', Begin],\n  [trajectory('/r_gripper_tool_frame'), occurs(Begin, End, dt(0.25))]\n]).",
+            "text": "What was the right gripper trajectory during tube grasp actions?"
+        },
+        {
+            "q": "entity(Act, [an, action,\n  [task_context, 'GOAL-PIPETTE-BUTTON-PUSHED-RELEASED']]),\noccurs(Act, [_,End]),\nshow([\n  [chemlab_map_2015:'Map_SAsdfs', End],\n  [pr2:'PR2Robot1', End]\n]),\nentity(Obj, [an, object,\n  [type, chemobjects:pipette],\n  [physical_parts, Endeffector]\n]),\nentity(Tube, [an, object, [type, chemobjects:tube]]),\nholds(chemlab_map_2015:insideOf(Endeffector,Tube), End),\nhighlight(Tube).",
+            "text": "Was the pipette inside a tube after the pipette button released?"
+        },
+        {
+            "q": "",
+            "text": ""
+        },
+        {
+            "q": "",
+            "text": "----- Video queries -----"
+        },
+        {
+            "q": "experiment_videos('Chemical-Laboratory', 'pr2-chemlab_0', Videos),\nmember(V,Videos), video_play(V).",
+            "text": "Play available videos."
+        },
+        {
+            "q": "",
+            "text": ""
+        }
+    ],
+    "time_intervals": [
+        {
+            "start": 1431799435,
+            "end": 1431800772
+        }
+    ],
+    "meta": {
+        "platforms": [
+            "Scene 3"
+        ],
+        "name": "Scene 3.1",
+        "description": "Our robot successfully performed several steps of a DNA extraction procedure for \u201cOcean Sampling Day\u201d, an event organized by \u201cMicro B3\u2033, a project aiming to stimulate the analysis and indexation of the whole planetary ocean DNA.",
+        "projects": [
+            "ACAT"
+        ],
+        "tags": []
+    },
+    "video": [
+        {
+            "end": 1431800772,
+            "name": "PR2 Chemical Assistant",
+            "initialization": "owl_parse('package://knowrob_srdl/owl/PR2.owl'), register_ros_package(knowrob_chemlab), \nload_experiment('/episodes/Chemical-Laboratory/pr2-chemlab_0/episode1/log.owl'), \nowl_parse('package://knowrob_chemlab/owl/chemlab_map.owl'), marker_update(object('http://knowrob.org/kb/chemlab_map.owl#SemanticEnvironmentMap_SAsdfs')), marker_publish.",
+            "summary": "true",
+            "start": 1431799435,
+            "animation": "visualize_chemlab_scene(T), !, task(Tsk, T), rdf_has(Tsk, knowrob:'perceptionRequest', _Desig), \nmng_designator_props(_Desig, _DesigJava, ['TYPE'], _Type), visualize_chemlab_highlights([_Type]), marker_publish."
+        }
+    ]
+}
